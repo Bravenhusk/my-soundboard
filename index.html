@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#f3f5ff">
+  <title>My Soundboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      font-family: Arial, sans-serif;
+      background: #f3f5ff;
+      color: #202342;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 8px 0;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin: 0 0 20px;
+      color: #555b78;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    .word-button {
+      min-height: 115px;
+      border: 0;
+      border-radius: 20px;
+      background: #ffffff;
+      color: #202342;
+      box-shadow: 0 4px 0 #d5d9ed;
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .word-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #d5d9ed;
+      background: #e0e6ff;
+    }
+
+    .status {
+      text-align: center;
+      min-height: 24px;
+      margin: 20px 0 0;
+      color: #555b78;
+    }
+
+    @media (min-width: 700px) {
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>My Soundboard</h1>
+  <p class="subtitle">Tap a button to hear the word.</p>
+
+  <main class="grid" id="soundboard"></main>
+  <p class="status" id="status" aria-live="polite">
+    Ready!
+  </p>
+
+  <script>
+    const words = [
+      "Hello",
+      "Yes",
+      "No",
+      "Please",
+      "Thank you",
+      "Help",
+      "Water",
+      "Food",
+      "More",
+      "Finished",
+      "Stop",
+      "Go",
+      "Bobby"
+    ];
+
+    const grid = document.getElementById("soundboard");
+    const status = document.getElementById("status");
+
+    function speak(word) {
+      if (!("speechSynthesis" in window)) {
+        status.textContent =
+          "Speech is not supported by this browser.";
+        return;
+      }
+
+      // Cancel queued speech so each tap responds promptly.
+      window.speechSynthesis.cancel();
+
+      const message = new SpeechSynthesisUtterance(word);
+      message.lang = "en-GB";
+      message.rate = 0.9;
+      message.pitch = 1;
+      message.volume = 1;
+
+      message.onstart = () => {
+        status.textContent = "Speaking: " + word;
+      };
+
+      message.onend = () => {
+        status.textContent = "Ready!";
+      };
+
+      message.onerror = () => {
+        status.textContent = "Couldn't speak. Please try again.";
+      };
+
+      window.speechSynthesis.speak(message);
+    }
+
+    words.forEach((word) => {
+      const button = document.createElement("button");
+      button.className = "word-button";
+      button.textContent = word;
+      button.type = "button";
+      button.addEventListener("click", () => speak(word));
+      grid.appendChild(button);
+    });
+  </script>
+</body>
+</html>
